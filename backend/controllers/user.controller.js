@@ -1,4 +1,5 @@
-
+import doten from 'dotenv'
+doten.config()
 import { Webhook } from 'svix'
 import userModel from '../model/user.js';
 
