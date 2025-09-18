@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import 'dotenv/config'
 import connectToDB from "./config/Db.js";
+import userRoute from "./routes/user.route.js";
 
 
 const app = express();
@@ -27,5 +28,7 @@ await connectToDB()
 app.get("/", (req, res) => {
     res.send("ok its working")
 })
+
+app.use("/api/user", userRoute)
 
 
