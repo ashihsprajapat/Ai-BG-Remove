@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 8080;
 
 app.use(express.json({ limit: "40kb" }));
 app.use(express.urlencoded({ limit: "40kb", extended: true }));
-app.use(cors());
+app.use(cors("/*"));
 
 app.listen(PORT, () => {
     console.log("App is listing on port", parseInt(PORT));
