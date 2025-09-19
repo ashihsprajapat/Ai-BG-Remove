@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 import { Webhook } from 'svix'
 import userModel from '../model/user.js';
+import razorPay from 'razorpay'
 
 //api controller function to mangae clerk user with database
 //api/user/webhooks
@@ -97,6 +98,7 @@ const userCredits = async (req, res) => {
     }
 }
 
+//getway initailize
 
 
 
