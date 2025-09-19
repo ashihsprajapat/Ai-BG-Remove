@@ -1,12 +1,16 @@
 
 import React from 'react'
 import { assets } from '../assets/assets'
+import { useAppContext } from '../context/appContext'
 
 function Hero() {
+
+    const {image, setImage, removeBg} = useAppContext()
+
     return (
         <div className="flex flex-col-reverse gap-10  md:flex-row px-4 md:px-16 lg:px-24 xl:px-32 mt-12 md:mt-20">
             <div className="max-md:text-center mt-8">
-                <h5 class="text-3xl  md:text-6xl/[76px] font-semibold max-w-xl bg-gradient-to-r from-slate-900 to-[#6D8FE4] text-transparent bg-clip-text">
+                <h5 className="text-3xl  md:text-6xl/[76px] font-semibold max-w-xl bg-gradient-to-r from-slate-900 to-[#6D8FE4] text-transparent bg-clip-text">
                     Remove the
                     background from
                     images for free.
@@ -22,7 +26,8 @@ function Hero() {
                     <img src={assets.upload_btn_icon} alt="" className="w-4" />
                     upload your image
                 </label>
-                <input name="file" id='file' type="file" className='hidden' />
+                <input  accept='image/*' id='file' type="file" className='hidden'
+                onChange={(e)=> removeBg(e.target.files[0])} />
 
             </div>
             <div className="w-full  md:max-w-xs lg:max-w-lg">

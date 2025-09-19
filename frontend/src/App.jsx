@@ -10,6 +10,8 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer'
 
 
+  import { ToastContainer,  } from 'react-toastify';
+
 function App() {
   const [count, setCount] = useState(0)
 
@@ -25,6 +27,18 @@ function App() {
 
       </Routes>
       <Footer />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   )
 }

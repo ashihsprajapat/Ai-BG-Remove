@@ -4,6 +4,7 @@ import cors from "cors";
 import 'dotenv/config'
 import connectToDB from "./config/Db.js";
 import userRoute from "./routes/user.route.js";
+import imageRoute from "./routes/image.route.js";
 
 
 const app = express();
@@ -30,6 +31,7 @@ app.get("/", (req, res) => {
 })
 
 app.use("/api/user", userRoute)
+app.use("/api/image", imageRoute)
 
 //https://ai-bg-remove-backend.vercel.app/api/user/webhooks
 

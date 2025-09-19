@@ -17,9 +17,9 @@ const webhooks = async (req, res) => {
             'svix-timestamp': req.headers['svix-timestamp'],
             'svix-signature': req.headers['svix-signature'],
         }
-        
+
         const payload = JSON.stringify(req.body);
-        
+
         try {
             webhook.verify(payload, svixHeaders);
         } catch (err) {
@@ -61,7 +61,7 @@ const webhooks = async (req, res) => {
                 }
 
                 await userModel.findOneAndUpdate(
-                    { clerkId: data.id }, 
+                    { clerkId: data.id },
                     userData,
                     { new: true }
                 );
@@ -77,4 +77,27 @@ const webhooks = async (req, res) => {
     }
 }
 
-export { webhooks };
+
+
+//api controller function to get user availbale creadits data
+const userCredits = async (req, res) => {
+    try {
+
+        const { clerkId } = req.user
+        const userData = await userModel.findOne({ clerkId });
+
+        if (!userData)
+            return res.json({ success: false, message: "user not found" });
+
+
+        res.json({ success: true, credits: userData.creditBalanace });
+    } catch (error) {
+        console.error('Webhook processing error:', error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+
+
+
+export { webhooks,userCredits };
