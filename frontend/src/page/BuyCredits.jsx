@@ -1,8 +1,67 @@
 
 import React from 'react'
 import { plans } from '../assets/assets'
+import { useAppContext } from '../context/appContext'
+import { useAuth } from '@clerk/clerk-react'
+import { toast } from 'react-toastify'
 
 function BuyCredits() {
+
+    const { axiosIn, loadCreditsData, navigate } = useAppContext()
+
+    const { getToken } = useAuth()
+
+    const initPay = async (order) => {
+
+        const options = {
+            key: import.meta.env.VITE_ROZORPAY_ID,
+            amount: order.amount,
+            currency: order.currency,
+            name: "Credits paymnets",
+            description: "Credits paymnets",
+            order_id: order.id,
+            receipt: order.receipt,
+            handler: async (response) => {
+                console.log(response);
+                const token = await getToken();
+                try {
+                    const { data } = await axiosIn.post("/api/user/verify-razor", response, { headers: { token } })
+                    if (data.success) {
+                        toast.success(data.message)
+                        loadCreditsData();
+                        navigate("/")
+                    }
+                } catch (error) {
+                    console.log(error.message)
+                }
+            }
+        }
+
+        const rzp = new window.Razorpay(options);
+        rzp.open()
+    }
+
+    const paymentRazorpay = async (planId) => {
+        try {
+            console.log("planId is ", planId)
+            const token = await getToken()
+            console.log("Calling to function")
+            const { data } = await axiosIn.post("/api/user/pay-razor", { planId }, { headers: { token } })
+            console.log("data after calling to pay-razor", data);
+
+            if (data.success) {
+                initPay(data.order);
+
+            } else {
+                console.log(data.message)
+            }
+
+        } catch (error) {
+            console.log(error)
+            toast.error(error.message)
+        }
+    }
+
     return (
         <div className='text-center mt-20'>
             <button className='border mb-10 text-sm rounded-2xl px-5 py-1 mx-auto'>OUR PLANS</button>
@@ -30,7 +89,8 @@ function BuyCredits() {
 
                             </ul>
 
-                            <button className="w-full py-2 px-4 bg-black text-white rounded hover:bg-blue-600 transition-colors text-sm">
+                            <button className="w-full py-2 px-4 bg-black text-white rounded hover:bg-blue-600 transition-colors text-sm"
+                                onClick={() => paymentRazorpay(plan.id)}>
                                 Get Started
                             </button>
                         </div>

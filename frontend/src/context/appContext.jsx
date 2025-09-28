@@ -63,11 +63,11 @@ export const AppContextProvider = ({ children }) => {
             if (data.success) {
                 setResultImage(data.resultImage)
                 data.creditBalanace && setCredits(data.creditBalanace);
-                if(data.creditBalanace ==0)
+                if (data.creditBalanace == 0)
                     navigate("/buyCredits")
             } else {
                 toast.error(data.message)
-                  navigate("/buyCredits")
+                navigate("/buyCredits")
             }
         } catch (error) {
             console.log(error.message)
@@ -82,7 +82,9 @@ export const AppContextProvider = ({ children }) => {
         loadCreditsData,
         removeBg,
         resultImage, setResultImage,
-        image, setImage
+        image, setImage,
+        axiosIn,
+        navigate
     }
 
     return (

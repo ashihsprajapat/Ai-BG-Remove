@@ -2,7 +2,8 @@ import dotenv from 'dotenv'
 dotenv.config()
 import { Webhook } from 'svix'
 import userModel from '../model/user.js';
-import razorPay from 'razorpay'
+import Razorpay from 'razorpay'
+import transactionModel from '../model/transactions.js';
 
 //api controller function to mangae clerk user with database
 //api/user/webhooks
@@ -99,7 +100,99 @@ const userCredits = async (req, res) => {
 }
 
 //getway initailize
+const razorpayInstance = new Razorpay({
+    key_id: process.env.ROZORPAY_ID,
+    key_secret: process.env.ROZORPAY_SECRET,
+});
+
+//api to make payment  for credits
+const paymnetRazorPay = async (req, res) => {
+    try {
+        const { clerkId } = req.user
+        const { planId } = req.body
+        const userData = await userModel.findOne({ clerkId })
+        if (!userData || !planId)
+            return res.json({ success: false, message: "invalid credentials" })
+
+        let credits, plan, amount, data
+
+        switch (planId) {
+            case 'Basic':
+                plan = 'Basic'
+                credits = 10
+                amount = 10
+                break;
+
+            case "Advance":
+                plan = 'Advance'
+                credits = 20
+                amount = 50
+                break;
+
+            case 'Business':
+                plan = 'Business';
+                credits = 30
+                amount = 250
+                break;
+        }
+
+        const date = Date.now()
 
 
+        //creating transactions
+        const transactionData = {
+            credits, plan, clerkId, amount, date,
+        }
 
-export { webhooks,userCredits };
+        const newTransaction = await transactionModel.create(transactionData)
+        console.log("New transactions", newTransaction)
+        const options = {
+            amount: amount * 100,
+            currency: process.env.CURRENCY,
+            receipt: newTransaction._id
+
+        }
+
+        await razorpayInstance.orders.create(options, (err, order) => {
+            if (err)
+                return res.json({ message: err, success: false })
+            res.json({ success: true, order })
+        })
+
+    } catch (error) {
+
+    }
+}
+
+
+//api controller finction to verify razorpay payment verifu
+export const verifyRazorpay = async (req, res) => {
+    try {
+        const { razorpay_order_id } = req.body;
+
+        if (!razorpay_order_id)
+            return res.json({ success: false, message: "razorpay_order_id is requried" })
+
+        const orderinfo = await razorpayInstance.orders.fetch(razorpay_order_id)
+        if (orderinfo.status === 'paid') {
+            const transactionData = await transactionModel.findById(orderinfo.receipt)
+            if (transactionData.payment) {
+                return res.json({ success: false, message: "Payment failed" })
+            }
+
+            // adding credits in user Data
+            const userData = await userModel.findOne({ clerkId: transactionData.clerkId })
+            const creditBalanace = transactionData.credits + userData.creditBalanace
+            await userModel.findByIdAndUpdate(userData._id, { creditBalanace })
+
+            await transactionModel.findByIdAndUpdate(transactionData._id, { payment: true })
+
+            res.json({ messag: "Credits added", success: true, })
+        }
+    } catch (error) {
+
+    }
+}
+
+
+export { webhooks, userCredits, paymnetRazorPay };
