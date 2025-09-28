@@ -14,7 +14,25 @@ const PORT = process.env.PORT || 8080;
 
 app.use(express.json({ limit: "40kb" }));
 app.use(express.urlencoded({ limit: "40kb", extended: true }));
-app.use(cors("/*"));
+const allowedOrigins = [
+    "http://localhost:5173",
+    process.env.FRONTEND_URL   // e.g. https://myfrontend.com
+];
+
+app.use(
+    cors({
+        origin: function (origin, callback) {
+            // allow requests with no origin (like mobile apps or curl)
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            } else {
+                return callback(new Error("Not allowed by CORS"));
+            }
+        },
+        credentials: true, // if you need cookies/authorization headers
+    })
+);
 
 app.listen(PORT, () => {
     console.log("App is listing on port", parseInt(PORT));
